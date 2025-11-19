@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Performance Tracker</title>
+    <style>
+        :root {
+            --primary: #4e54c8;
+            --secondary: #8f94fb;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            animation: fadeIn 1s ease;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.5s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.8rem;
+        }
+        
+        .progress-container {
+            margin: 15px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        
+        .daily-tracker {
+            margin-top: 30px;
+            animation: fadeIn 1s ease 0.2s both;
+        }
+        
+        .tracker-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+        
+        .rating {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .rating-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .rating-btn:hover, .rating-btn.active {
+            background: var(--success);
+            transform: scale(1.05);
+        }
+        
+        .rating-btn.active.rating-1 { background: var(--danger); }
+        .rating-btn.active.rating-2 { background: #FF9800; }
+        .rating-btn.active.rating-3 { background: #FFC107; }
+        .rating-btn.active.rating-4 { background: #8BC34A; }
+        .rating-btn.active.rating-5 { background: var(--success); }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .daily-feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            animation: popIn 0.5s ease;
+        }
+        
+        .feedback-success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid var(--success);
+        }
+        
+        .feedback-warning {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid var(--warning);
+        }
+        
+        .feedback-danger {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid var(--danger);
+        }
+        
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-day:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .calendar-day.completed {
+            background: var(--success);
+        }
+        
+        .calendar-day.partial {
+            background: var(--warning);
+        }
+        
+        .calendar-day.missed {
+            background: var(--danger);
+        }
+        
+        .monthly-report {
+            margin-top: 30px;
+            animation: fadeIn 1s ease 0.4s both;
+        }
+        
+        .report-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-top: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .improvement-suggestions {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .motivation-message {
+            text-align: center;
+            font-style: italic;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: confetti-fall 5s linear forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Personal Performance Tracker</h1>
+            <p class="subtitle">अपने दैनिक लक्ष्यों को ट्रैक करें और सुधार करें</p>
+        </header>
+        
+        <div class="dashboard">
+            <div class="card">
+                <h2 class="card-title">
+                    <i>💪</i> व्यायाम ट्रैकर
+                </h2>
+                <p>लक्ष्य: 26+ दिन प्रति माह</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="exercise-progress" style="width: 0%; background: var(--success);"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>0 दिन</span>
+                        <span>लक्ष्य: 26 दिन</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">
+                    <i>📚</i> पढ़ाई ट्रैकर
+                </h2>
+                <p>लक्ष्य: 60+ घंटे प्रति माह</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="study-progress" style="width: 0%; background: var(--success);"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>0 घंटे</span>
+                        <span>लक्ष्य: 60 घंटे</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title">
+                    <i>🍎</i> पोषण ट्रैकर
+                </h2>
+                <p>लक्ष्य: 4+ रेटिंग वाले दिन</p>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="nutrition-progress" style="width: 0%; background: var(--success);"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>0 दिन</span>
+                        <span>लक्ष्य: 25+ दिन</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="daily-tracker">
+            <h2>आज का ट्रैकर</h2>
+            <div class="tracker-form">
+                <div class="form-group">
+                    <label for="exercise">क्या आज व्यायाम किया? (हाँ/नहीं)</label>
+                    <select id="exercise">
+                        <option value="">चुनें</option>
+                        <option value="yes">हाँ</option>
+                        <option value="no">नहीं</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="study">आज कितने घंटे पढ़ाई की?</label>
+                    <input type="number" id="study" min="0" max="10" step="0.5" placeholder="घंटों में">
+                </div>
+                
+                <div class="form-group">
+                    <label>आज के भोजन की पोषण रेटिंग</label>
+                    <div class="rating">
+                        <button class="rating-btn" data-rating="1">1 ⭐</button>
+                        <button class="rating-btn" data-rating="2">2 ⭐</button>
+                        <button class="rating-btn" data-rating="3">3 ⭐</button>
+                        <button class="rating-btn" data-rating="4">4 ⭐</button>
+                        <button class="rating-btn" data-rating="5">5 ⭐</button>
+                    </div>
+                    <input type="hidden" id="nutrition-rating">
+                </div>
+                
+                <button class="submit-btn" id="submit-day">आज का डेटा सबमिट करें</button>
+                
+                <div id="daily-feedback" class="daily-feedback" style="display: none;"></div>
+            </div>
+        </div>
+        
+        <div class="monthly-report">
+            <h2>मासिक रिपोर्ट</h2>
+            <div class="report-card">
+                <h3>इस महीने का प्रदर्शन</h3>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div>व्यायाम दिन</div>
+                        <div class="stat-value" id="exercise-days">0</div>
+                        <div>26 लक्ष्य में से</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div>पढ़ाई के घंटे</div>
+                        <div class="stat-value" id="study-hours">0</div>
+                        <div>60 लक्ष्य में से</div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div>उच्च पोषण दिन</div>
+                        <div class="stat-value" id="nutrition-days">0</div>
+                        <div>25+ लक्ष्य में से</div>
+                    </div>
+                </div>
+                
+                <div class="improvement-suggestions" id="improvement-suggestions">
+                    <h4>सुधार के सुझाव:</h4>
+                    <p>अपना डेटा सबमिट करने के बाद सुझाव यहाँ दिखाई देंगे</p>
+                </div>
+                
+                <div class="motivation-message" id="motivation-message">
+                    आपका महीना शुरू हुआ है! अपने लक्ष्यों को पूरा करने के लिए प्रतिदिन ट्रैक करें।
+                </div>
+            </div>
+        </div>
+        
+        <div class="calendar-container">
+            <h2>महीने का कैलेंडर</h2>
+            <div class="calendar" id="calendar">
+                <!-- Calendar days will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data
+        let monthlyData = JSON.parse(localStorage.getItem('monthlyData')) || {};
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        
+        // Initialize if not exists
+        if (!monthlyData.month || monthlyData.month !== currentMonth || monthlyData.year !== currentYear) {
+            monthlyData = {
+                month: currentMonth,
+                year: currentYear,
+                days: {},
+                totals: {
+                    exerciseDays: 0,
+                    studyHours: 0,
+                    nutritionDays: 0
+                }
+            };
+            saveData();
+        }
+        
+        // DOM Elements
+        const exerciseSelect = document.getElementById('exercise');
+        const studyInput = document.getElementById('study');
+        const ratingButtons = document.querySelectorAll('.rating-btn');
+        const nutritionRatingInput = document.getElementById('nutrition-rating');
+        const submitButton = document.getElementById('submit-day');
+        const dailyFeedback = document.getElementById('daily-feedback');
+        const exerciseDaysEl = document.getElementById('exercise-days');
+        const studyHoursEl = document.getElementById('study-hours');
+        const nutritionDaysEl = document.getElementById('nutrition-days');
+        const improvementSuggestions = document.getElementById('improvement-suggestions');
+        const motivationMessage = document.getElementById('motivation-message');
+        const calendarEl = document.getElementById('calendar');
+        
+        // Set today's date as default
+        const today = new Date().getDate();
+        
+        // Update UI with existing data
+        updateProgressBars();
+        updateMonthlyReport();
+        generateCalendar();
+        
+        // Event Listeners
+        ratingButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                ratingButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                button.classList.add(`rating-${button.dataset.rating}`);
+                nutritionRatingInput.value = button.dataset.rating;
+            });
+        });
+        
+        submitButton.addEventListener('click', submitDailyData);
+        
+        // Functions
+        function submitDailyData() {
+            const exercise = exerciseSelect.value;
+            const study = parseFloat(studyInput.value) || 0;
+            const nutrition = parseInt(nutritionRatingInput.value) || 0;
+            
+            // Validation
+            if (!exercise || !nutrition) {
+                showFeedback('कृपया सभी फ़ील्ड भरें', 'danger');
+                return;
+            }
+            
+            // Save data
+            const dayData = {
+                date: today,
+                exercise: exercise === 'yes',
+                studyHours: study,
+                nutritionRating: nutrition
+            };
+            
+            monthlyData.days[today] = dayData;
+            
+            // Update totals
+            updateTotals();
+            
+            // Save to localStorage
+            saveData();
+            
+            // Update UI
+            updateProgressBars();
+            updateMonthlyReport();
+            generateCalendar();
+            
+            // Show feedback
+            const allGood = dayData.exercise && dayData.studyHours >= 2 && dayData.nutritionRating >= 3;
+            const someGood = dayData.exercise || dayData.studyHours >= 2 || dayData.nutritionRating >= 3;
+            
+            if (allGood) {
+                showFeedback('बहुत बढ़िया! आपने आज सभी लक्ष्य पूरे किए! 🎉', 'success');
+                createConfetti();
+            } else if (someGood) {
+                showFeedback('अच्छा प्रयास! कल और बेहतर करने की कोशिश करें।', 'warning');
+            } else {
+                showFeedback('आज का प्रदर्शन बेहतर हो सकता है। कल नए जोश के साथ शुरुआत करें!', 'danger');
+            }
+            
+            // Reset form
+            exerciseSelect.value = '';
+            studyInput.value = '';
+            nutritionRatingInput.value = '';
+            ratingButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove(`rating-${btn.dataset.rating}`);
+            });
+        }
+        
+        function updateTotals() {
+            monthlyData.totals.exerciseDays = 0;
+            monthlyData.totals.studyHours = 0;
+            monthlyData.totals.nutritionDays = 0;
+            
+            for (const day in monthlyData.days) {
+                if (monthlyData.days[day].exercise) {
+                    monthlyData.totals.exerciseDays++;
+                }
+                
+                monthlyData.totals.studyHours += monthlyData.days[day].studyHours;
+                
+                if (monthlyData.days[day].nutritionRating >= 4) {
+                    monthlyData.totals.nutritionDays++;
+                }
+            }
+        }
+        
+        function updateProgressBars() {
+            const exerciseProgress = document.getElementById('exercise-progress');
+            const studyProgress = document.getElementById('study-progress');
+            const nutritionProgress = document.getElementById('nutrition-progress');
+            
+            // Exercise progress (goal: 26 days)
+            const exercisePercent = Math.min((monthlyData.totals.exerciseDays / 26) * 100, 100);
+            exerciseProgress.style.width = `${exercisePercent}%`;
+            exerciseProgress.parentElement.nextElementSibling.querySelector('span:first-child').textContent = 
+                `${monthlyData.totals.exerciseDays} दिन`;
+            
+            // Study progress (goal: 60 hours)
+            const studyPercent = Math.min((monthlyData.totals.studyHours / 60) * 100, 100);
+            studyProgress.style.width = `${studyPercent}%`;
+            studyProgress.parentElement.nextElementSibling.querySelector('span:first-child').textContent = 
+                `${monthlyData.totals.studyHours.toFixed(1)} घंटे`;
+            
+            // Nutrition progress (goal: 25 days with rating 4+)
+            const nutritionPercent = Math.min((monthlyData.totals.nutritionDays / 25) * 100, 100);
+            nutritionProgress.style.width = `${nutritionPercent}%`;
+            nutritionProgress.parentElement.nextElementSibling.querySelector('span:first-child').textContent = 
+                `${monthlyData.totals.nutritionDays} दिन`;
+        }
+        
+        function updateMonthlyReport() {
+            exerciseDaysEl.textContent = monthlyData.totals.exerciseDays;
+            studyHoursEl.textContent = monthlyData.totals.studyHours.toFixed(1);
+            nutritionDaysEl.textContent = monthlyData.totals.nutritionDays;
+            
+            // Generate improvement suggestions
+            let suggestions = [];
+            
+            if (monthlyData.totals.exerciseDays < 26) {
+                suggestions.push(`व्यायाम: इस महीने ${26 - monthlyData.totals.exerciseDays} और दिन व्यायाम करने का लक्ष्य रखें`);
+            }
+            
+            if (monthlyData.totals.studyHours < 60) {
+                suggestions.push(`पढ़ाई: अगले महीने ${(60 - monthlyData.totals.studyHours).toFixed(1)} अतिरिक्त घंटे पढ़ने का लक्ष्य रखें`);
+            }
+            
+            if (monthlyData.totals.nutritionDays < 25) {
+                suggestions.push(`पोषण: अगले महीने ${25 - monthlyData.totals.nutritionDays} और दिन उच्च पोषण वाला भोजन करने का लक्ष्य रखें`);
+            }
+            
+            if (suggestions.length === 0) {
+                suggestions.push('बधाई! आपने इस महीने सभी लक्ष्य पूरे किए हैं! 🎉');
+            }
+            
+            improvementSuggestions.innerHTML = `
+                <h4>सुधार के सुझाव:</h4>
+                <ul>
+                    ${suggestions.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+            `;
+            
+            // Generate motivation message
+            let extraStudy = monthlyData.totals.studyHours - 60;
+            if (extraStudy > 0) {
+                motivationMessage.textContent = `बहुत बढ़िया! आपने लक्ष्य से ${extraStudy.toFixed(1)} घंटे अधिक पढ़ाई की! आप प्रेरणादायक हैं!`;
+                motivationMessage.style.background = 'rgba(76, 175, 80, 0.3)';
+            } else {
+                motivationMessage.textContent = 'आप अच्छा कर रहे हैं! नियमितता बनाए रखें और अपने लक्ष्यों को प्राप्त करें।';
+                motivationMessage.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+        }
+        
+        function generateCalendar() {
+            calendarEl.innerHTML = '';
+            
+            // Get days in month
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = i;
+                
+                if (monthlyData.days[i]) {
+                    const dayData = monthlyData.days[i];
+                    const allGood = dayData.exercise && dayData.studyHours >= 2 && dayData.nutritionRating >= 3;
+                    const someGood = dayData.exercise || dayData.studyHours >= 2 || dayData.nutritionRating >= 3;
+                    
+                    if (allGood) {
+                        dayEl.classList.add('completed');
+                    } else if (someGood) {
+                        dayEl.classList.add('partial');
+                    } else {
+                        dayEl.classList.add('missed');
+                    }
+                }
+                
+                if (i === today) {
+                    dayEl.style.border = '2px solid white';
+                }
+                
+                calendarEl.appendChild(dayEl);
+            }
+        }
+        
+        function showFeedback(message, type) {
+            dailyFeedback.textContent = message;
+            dailyFeedback.className = `daily-feedback feedback-${type}`;
+            dailyFeedback.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                dailyFeedback.style.display = 'none';
+            }, 5000);
+        }
+        
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        function saveData() {
+            localStorage.setItem('monthlyData', JSON.stringify(monthlyData));
+        }
+    </script>
+</body>
+</html>
